@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serpentine — Ultimate Snake Game</title>
+  <meta name="description" content="Play the ultimate Snake game with 8 game modes, online multiplayer, power-ups, and stunning neon visuals." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Background canvas for menu animations -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Error toast -->
+<div id="error-toast"></div>
+
+<!-- Achievement popup container -->
+<div id="achievement-container"></div>
+
+<!-- Main app -->
+<div id="app">
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: MENU
+  ═══════════════════════════════════════════ -->
+  <div id="screen-menu" class="screen active">
+    <div class="menu-logo">
+      <span class="logo-s">S</span><span class="logo-rest">ERPENTINE</span>
+    </div>
+    <p class="menu-tagline">The Ultimate Snake Experience</p>
+
+    <div class="menu-buttons">
+      <button id="btn-solo" class="btn btn-primary">
+        <span class="btn-icon">🎮</span> Solo Play
+      </button>
+      <button id="btn-multiplayer" class="btn btn-secondary">
+        <span class="btn-icon">🌐</span> Online Multiplayer
+      </button>
+      <button id="btn-leaderboard" class="btn btn-ghost">
+        <span class="btn-icon">🏆</span> High Scores
+      </button>
+    </div>
+
+    <div class="menu-tips">
+      <span class="tip-label">TIP</span>
+      <span id="tip-text">Use WASD or Arrow Keys to control your snake</span>
+    </div>
+
+    <div class="menu-footer">
+      <span>v2.0</span>
+      <span>•</span>
+      <span>by aa4474</span>
+      <span>•</span>
+      <a href="https://github.com/aa4474/snake-game" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: MODE SELECT
+  ═══════════════════════════════════════════ -->
+  <div id="screen-mode_select" class="screen">
+    <div class="screen-header">
+      <button class="btn-back-small" data-target="menu">← Back</button>
+      <h1 class="screen-title">Choose Mode</h1>
+      <div></div>
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card selected" data-mode="classic">
+        <div class="mode-icon">🏆</div>
+        <div class="mode-name">Classic</div>
+        <div class="mode-desc">The original. Eat, grow, survive.</div>
+        <div class="mode-keys">WASD / ↑↓←→</div>
+      </div>
+      <div class="mode-card" data-mode="speed_rush">
+        <div class="mode-icon">⚡</div>
+        <div class="mode-name">Speed Rush</div>
+        <div class="mode-desc">Speed increases every 10 seconds!</div>
+        <div class="mode-keys">WASD / ↑↓←→</div>
+      </div>
+      <div class="mode-card" data-mode="portal">
+        <div class="mode-icon">🌀</div>
+        <div class="mode-name">Portal</div>
+        <div class="mode-desc">Walls have teleport portals.</div>
+        <div class="mode-keys">WASD / ↑↓←→</div>
+      </div>
+      <div class="mode-card" data-mode="time_attack">
+        <div class="mode-icon">⏱️</div>
+        <div class="mode-name">Time Attack</div>
+        <div class="mode-desc">Max score in 60 seconds!</div>
+        <div class="mode-keys">WASD / ↑↓←→</div>
+      </div>
+      <div class="mode-card" data-mode="versus">
+        <div class="mode-icon">⚔️</div>
+        <div class="mode-name">Versus</div>
+        <div class="mode-desc">1v1 local: first to 5 kills wins!</div>
+        <div class="mode-keys">WASD vs IJKL</div>
+      </div>
+      <div class="mode-card" data-mode="chaos">
+        <div class="mode-icon">🔮</div>
+        <div class="mode-name">Chaos</div>
+        <div class="mode-desc">Random events shake everything up.</div>
+        <div class="mode-keys">WASD / ↑↓←→</div>
+      </div>
+    </div>
+
+    <div class="mode-actions">
+      <button id="btn-play-mode" class="btn btn-primary large">
+        Play Selected Mode →
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: SKIN SELECT
+  ═══════════════════════════════════════════ -->
+  <div id="screen-skin_select" class="screen">
+    <div class="screen-header">
+      <button class="btn-back-small" data-target="mode_select">← Back</button>
+      <h1 class="screen-title">Pick Your Skin</h1>
+      <div></div>
+    </div>
+
+    <div id="skin-options" class="skin-grid"></div>
+
+    <div class="skin-preview-area">
+      <canvas id="skin-preview-canvas" width="200" height="80"></canvas>
+      <div id="selected-skin-name" class="skin-label">Neon</div>
+    </div>
+
+    <button id="btn-start-game" class="btn btn-primary large pulse-btn">
+      🎮 Start Game
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: MULTIPLAYER LOBBY
+  ═══════════════════════════════════════════ -->
+  <div id="screen-lobby" class="screen">
+    <div class="screen-header">
+      <button class="btn-back-small" data-target="menu">← Back</button>
+      <h1 class="screen-title">Online Multiplayer</h1>
+      <div id="latency-display" class="latency">—</div>
+    </div>
+
+    <!-- Mode selector -->
+    <div class="lobby-mode-row">
+      <label class="lobby-label">Game Mode:</label>
+      <select id="lobby-mode-select" class="lobby-select">
+        <option value="versus">⚔️ Versus (1v1)</option>
+        <option value="coop">🤝 Co-op</option>
+        <option value="classic">🏆 Classic Race</option>
+        <option value="chaos">🔮 Chaos</option>
+      </select>
+    </div>
+
+    <div class="lobby-panels">
+      <!-- CREATE -->
+      <div class="lobby-panel" id="panel-create">
+        <div class="panel-title">🏠 Host a Game</div>
+        <div class="room-code-display" id="room-code-display">
+          <span class="code-digit">-</span>
+          <span class="code-digit">-</span>
+          <span class="code-digit">-</span>
+          <span class="code-digit">-</span>
+          <span class="code-digit">-</span>
+          <span class="code-digit">-</span>
+        </div>
+        <div class="lobby-status" id="lobby-status-create">Click Create to get a room code</div>
+        <div class="lobby-actions">
+          <button id="btn-create-room" class="btn btn-primary">Create Room</button>
+          <button id="btn-copy-code" class="btn btn-ghost" style="display:none">📋 Copy Code</button>
+        </div>
+        <button id="btn-start-mp" class="btn btn-success" style="display:none" disabled>
+          🚀 Start Game
+        </button>
+      </div>
+
+      <div class="lobby-divider">OR</div>
+
+      <!-- JOIN -->
+      <div class="lobby-panel" id="panel-join">
+        <div class="panel-title">🔗 Join a Game</div>
+        <div class="code-input-row">
+          <input id="code-input" type="text" inputmode="numeric"
+                 maxlength="6" placeholder="000000"
+                 class="code-input" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="lobby-status" id="lobby-status-join">Enter the 6-digit code</div>
+        <button id="btn-join-room" class="btn btn-secondary">Join Room</button>
+      </div>
+    </div>
+
+    <!-- Skin picker in lobby -->
+    <div class="lobby-skin-row">
+      <span class="lobby-label">Your Snake Skin:</span>
+      <div id="lobby-skin-options" class="lobby-skin-grid"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: LEADERBOARD
+  ═══════════════════════════════════════════ -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="screen-header">
+      <button class="btn-back-small" data-target="menu">← Back</button>
+      <h1 class="screen-title">High Scores</h1>
+      <button id="btn-clear-hs" class="btn-ghost-small">🗑 Clear</button>
+    </div>
+    <div class="lb-container">
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Best Score</th>
+          </tr>
+        </thead>
+        <tbody id="lb-body">
+        </tbody>
+      </table>
+
+      <div class="ach-section">
+        <div class="ach-section-title">🏅 Achievements</div>
+        <div id="ach-list" class="ach-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: GAME
+  ═══════════════════════════════════════════ -->
+  <div id="screen-game" class="screen">
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-left">
+        <div class="hud-score">
+          <span class="hud-label">SCORE</span>
+          <span id="score-display" class="hud-value">0</span>
+        </div>
+        <div class="hud-combo">
+          <span id="combo-display" class="combo-badge">×1</span>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <div id="mode-label" class="mode-badge">CLASSIC</div>
+        <div id="timer-display" class="timer" style="display:none">60s</div>
+        <div id="hud-powerups" class="powerup-row"></div>
+      </div>
+
+      <div class="hud-right">
+        <div id="p2-hud" class="hud-p2" style="display:none">
+          <span class="hud-label" id="p2-label">P2 SCORE</span>
+          <span id="p2-score-display" class="hud-value">0</span>
+        </div>
+        <div id="kills-hud" class="kills-row" style="display:none">
+          <span id="kills-display" class="kill-badge p1-kill">0</span>
+          <span class="kill-sep">vs</span>
+          <span id="kills2-display" class="kill-badge p2-kill">0</span>
+        </div>
+        <div id="latency-hud" class="latency-small" style="display:none">— ms</div>
+        <button id="btn-pause" class="btn-icon-only" title="Pause (Esc)">⏸</button>
+      </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <div class="canvas-wrap">
+      <canvas id="game-canvas"></canvas>
+      <!-- Touch controls -->
+      <div id="touch-controls" class="touch-controls">
+        <button class="touch-btn" data-dir="up">▲</button>
+        <div class="touch-mid">
+          <button class="touch-btn" data-dir="left">◀</button>
+          <button class="touch-btn touch-center" data-dir="none">⬤</button>
+          <button class="touch-btn" data-dir="right">▶</button>
+        </div>
+        <button class="touch-btn" data-dir="down">▼</button>
+      </div>
+    </div>
+
+    <!-- Countdown overlay -->
+    <div id="countdown-overlay"></div>
+
+    <!-- Pause overlay -->
+    <div id="pause-overlay">
+      <div class="pause-card glass-card">
+        <div class="pause-title">⏸ PAUSED</div>
+        <button id="btn-resume" class="btn btn-primary">▶ Resume</button>
+        <button id="btn-restart-game" class="btn btn-ghost">🔄 Restart</button>
+        <button id="btn-quit-game" class="btn btn-danger">🏠 Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SCREEN: GAME OVER
+  ═══════════════════════════════════════════ -->
+  <div id="screen-game_over" class="screen">
+    <div class="game-over-card glass-card">
+      <div id="game-over-title" class="go-title">GAME OVER</div>
+      <div id="new-highscore" class="new-hs" style="display:none">🌟 NEW HIGH SCORE!</div>
+      <div id="final-score" class="go-score"></div>
+      <div id="final-stats" class="go-stats"></div>
+
+      <div id="go-achievements" class="go-ach"></div>
+
+      <div class="go-buttons">
+        <button id="btn-play-again" class="btn btn-primary">🔄 Play Again</button>
+        <button id="btn-main-menu" class="btn btn-ghost">🏠 Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<script src="game.js"></script>
+</body>
+</html>
