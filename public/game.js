@@ -7,7 +7,7 @@
 // ── Server URL ────────────────────────────────────────────────────
 // ⚠️ Update this AFTER deploying server to Render.com
 // Find your URL in Render dashboard → Service → top URL bar
-const SERVER_URL = 'wss://snake-game-server.onrender.com';
+const SERVER_URL = 'wss://snake-game-server-f6yi.onrender.com';
 
 // ── Grid Config ───────────────────────────────────────────────────
 const GRID   = 25;
